@@ -165,10 +165,14 @@ python file_integrity_monitor.py
 
 You will be prompted to select an option:
 
-1. Create baseline
-2. Check integrity
-3. Automatic monitoring every X minutes
-4. Real-time monitoring
+Create baseline
+
+Check integrity
+
+Automatic monitoring every X minutes
+
+Real-time monitoring
+
 Example Output
 [INFO] Real-time monitoring started for folder: monitored_directory
 
