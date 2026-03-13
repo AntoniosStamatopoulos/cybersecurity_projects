@@ -190,10 +190,10 @@ file-integrity-monitor/
 Security Use Cases
 This tool can help detect:
 
-- **unauthorized file changes
-- **potential malware drops
-- **suspicious executable files
-- **configuration tampering
+- unauthorized file changes
+- potential malware drops
+- suspicious executable files
+- configuration tampering
 
 unexpected files appearing in monitored directories
 
