@@ -159,8 +159,7 @@ Install dependencies:
 pip install watchdog plyer
 Usage
 
-Run the program:
-
+**Run the program:**
 python file_integrity_monitor.py
 
 You will be prompted to select an option:
@@ -200,7 +199,6 @@ unexpected files appearing in monitored directories
 **Limitations**
 
 This tool uses hash comparison and heuristic detection.
-
 It does not perform deep malware analysis or antivirus scanning, therefore suspicious file detection should be treated as indicative rather than definitive.
 
 
