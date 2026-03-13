@@ -66,14 +66,7 @@ plyer – desktop notifications
 logging – event logging
 pathlib – filesystem management
 
-Installation
-
-Clone the repository:
-git clone https://github.com/yourusername/file-integrity-monitor.git
-cd file-integrity-monitor
-
 Install dependencies:
-
 pip install watchdog plyer
 Usage
 
