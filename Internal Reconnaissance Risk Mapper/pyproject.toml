@@ -1,0 +1,17 @@
+[project]
+name = "internal-recon-risk-mapper"
+version = "0.1.0"
+description = "A defensive internal reconnaissance risk mapping tool."
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml",
+    "rich"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

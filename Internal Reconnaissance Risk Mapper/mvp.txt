@@ -1,0 +1,244 @@
+Στο δικό μας εργαλείο, το MVP είναι αυτό που ήδη φτιάξαμε:
+
+Δίνω target IP ή subnet
+φορτώνει ports από YAML
+κάνει port scan
+παίρνει banners
+ταξινομεί services
+υπολογίζει risk
+βγάζει findings
+αποθηκεύει report.json
+
+Δεν έχει ακόμα όλα τα μελλοντικά χαρακτηριστικά, όπως:
+
+HTML report
+CSV export
+ωραίο dashboard
+unit tests
+full documentation
+advanced risk scoring
+
+
+
+Ναι — υπάρχουν αρκετά χαρακτηριστικά που θα το κάνουν πιο δυνατό και πιο “portfolio-ready”.
+
+Χαρακτηριστικά που αξίζει να προσθέσουμε
+1. HTML Report
+
+Να δημιουργεί αναφορά όπως:
+
+reports/report.html
+
+Με:
+
+πίνακα hosts
+risk score ανά host
+χρώματα για Low / Medium / High
+findings ανά host
+recommendations
+banners
+summary στην αρχή
+
+Αυτό ανεβάζει πολύ το project γιατί δεν μένει μόνο σε terminal/JSON, αλλά παράγει αναφορά που μπορείς να δείξεις.
+
+2. CSV Export
+
+Να δημιουργεί αρχείο:
+
+reports/report.csv
+
+Με γραμμές τύπου:
+
+host,port,service,category,risk_level,severity,recommendation
+192.168.2.1,445,SMB,file_sharing,Medium,High,Restrict SMB access...
+
+Χρήσιμο για:
+
+Excel
+filtering
+documentation
+εισαγωγή σε άλλα εργαλεία
+3. Markdown Report
+
+Να δημιουργεί:
+
+reports/report.md
+
+Ιδανικό για GitHub portfolio, γιατί μπορείς να το βάλεις απευθείας στο repository.
+
+Παράδειγμα:
+
+# Internal Reconnaissance Risk Report
+
+## Summary
+
+- Hosts scanned: 254
+- Hosts with open ports: 5
+- Total findings: 7
+
+## Findings
+
+### 192.168.2.1
+
+Risk: Medium
+4. Advanced Risk Scoring
+
+Να μη βασίζεται μόνο στο άθροισμα των ports.
+
+Μπορούμε να προσθέσουμε extra λογική:
+
+SMB + RDP στο ίδιο host        → extra risk
+HTTP admin panel + database    → extra risk
+Docker API ανοιχτό             → Critical
+Kubernetes API ανοιχτό         → Critical
+πολλά sensitive services       → multiplier
+
+Παράδειγμα:
+
+Base score: 35
+Sensitive service multiplier: +10
+Admin interface detected: +15
+Final score: 60
+5. Top Risk Hosts
+
+Στο summary να εμφανίζει τους πιο επικίνδυνους hosts:
+
+Top Risk Hosts
+1. 192.168.2.1 — Medium — 35/100
+2. 192.168.2.3 — Low — 25/100
+3. 192.168.2.7 — Low — 25/100
+
+Αυτό βοηθά πολύ στην παρουσίαση των αποτελεσμάτων.
+
+6. Better HTTP Fingerprinting
+
+Αντί να κρατάμε όλο το raw banner, να εξάγουμε καθαρά πεδία:
+
+status_code: 200
+server: SHIP 2.0
+content_type: text/html
+x_frame_options: SAMEORIGIN
+
+Έτσι το report γίνεται πιο αναγνώσιμο.
+
+7. Screenshot ή Web Title Grabber
+
+Για HTTP/HTTPS services, να παίρνει:
+
+<title>Router Login</title>
+<title>Grafana</title>
+<title>Admin Panel</title>
+
+Αυτό βοηθά στον εντοπισμό web admin interfaces.
+
+Παράδειγμα:
+
+192.168.2.4:80 → title: 200 OK
+192.168.2.1:443 → title: Router Management
+8. Configurable Port Profiles
+
+Να έχεις διαφορετικά profiles:
+
+quick
+default
+full
+web-only
+windows
+cloud
+devops
+
+Παράδειγμα χρήσης:
+
+python .\irmapper.py --target 192.168.2.0/24 --profile windows
+
+Το windows profile θα σαρώνει κυρίως:
+
+135, 139, 445, 3389, 5985, 5986
+9. Exclude Hosts
+
+Να μπορείς να εξαιρείς hosts από το scan.
+
+Παράδειγμα:
+
+python .\irmapper.py --target 192.168.2.0/24 --exclude 192.168.2.1
+
+ή:
+
+python .\irmapper.py --target 192.168.2.0/24 --exclude-file exclude.txt
+
+Χρήσιμο για rules of engagement.
+
+10. Scan Metadata
+
+Να αποθηκεύει στο report:
+
+start_time
+end_time
+duration_seconds
+threads
+timeout
+ports_scanned
+scanner_version
+
+Αυτό κάνει το report πιο επαγγελματικό.
+
+11. Unit Tests
+
+Να προσθέσουμε tests για:
+
+target_parser.py
+risk_engine.py
+service_classifier.py
+utils.py
+
+Παράδειγμα:
+
+pytest
+
+Αυτό δείχνει σοβαρό software engineering.
+
+12. Better Terminal UI με Rich
+
+Αφού έχουμε rich, μπορούμε να κάνουμε:
+
+χρωματιστούς πίνακες
+progress bar
+panels
+summary tables
+
+Παράδειγμα:
+
+Scanning 254 hosts ━━━━━━━━━━━━━━━━━━━━━ 100%
+13. Host Discovery Mode
+
+Πριν κάνει port scan, να ελέγχει ποιοι hosts είναι πιθανό να είναι ενεργοί.
+
+Με ασφαλείς μεθόδους όπως:
+
+TCP ping σε κοινά ports
+ARP-based local discovery, προαιρετικά
+ICMP ping, αν επιτρέπεται
+
+Έτσι δεν σαρώνει άσκοπα 254 hosts αν μόνο 5 είναι ενεργοί.
+
+14. Severity Override Rules
+
+Να μπορείς να αλλάζεις severity από config.
+
+Παράδειγμα:
+
+overrides:
+  - service: SMB
+    if_network: guest
+    severity: Critical
+    reason: SMB should never be reachable from guest network
+
+Αυτό είναι πολύ καλό για enterprise-style risk logic.
+
+15. Remediation Priority
+
+Να μη δείχνει απλώς findings, αλλά προτεραιότητα:
+
+Priority 1: Restrict SMB exposure
+Priority 2: Review HTTP admin services
+Priority 3: Validate TLS/authentication

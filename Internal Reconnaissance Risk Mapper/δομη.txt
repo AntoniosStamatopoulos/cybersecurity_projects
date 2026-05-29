@@ -1,0 +1,563 @@
+Δομή εργαλείου
+internal-recon-risk-mapper/
+│
+├── README.md
+├── requirements.txt
+├── pyproject.toml
+├── .gitignore
+│
+├── irmapper.py
+│
+├── config/
+│   ├── default_ports.yml
+│   └── risk_rules.yml
+│
+├── irmapper_core/
+│   ├── __init__.py
+│   ├── cli.py
+│   ├── target_parser.py
+│   ├── scanner.py
+│   ├── banner_grabber.py
+│   ├── service_classifier.py
+│   ├── risk_engine.py
+│   ├── reporter.py
+│   ├── models.py
+│   └── utils.py
+│
+├── reports/
+│   └── .gitkeep
+│
+├── tests/
+│   ├── test_target_parser.py
+│   ├── test_risk_engine.py
+│   └── test_service_classifier.py
+│
+└── docs/
+    ├── architecture.md
+    ├── usage.md
+    └── sample_report.md
+Τι κάνει το κάθε αρχείο / φάκελος
+1. README.md
+
+Είναι η κεντρική περιγραφή του project.
+
+Περιλαμβάνει:
+
+- Τι είναι το εργαλείο
+- Σε ποιον απευθύνεται
+- Προειδοποίηση για χρήση μόνο με άδεια
+- Installation
+- Παραδείγματα χρήσης
+- Παράδειγμα output
+- Roadmap
+
+Παράδειγμα περιγραφής:
+
+Internal Reconnaissance Risk Mapper is a defensive security engineering tool
+that helps organizations understand what internal services are exposed from
+the perspective of a low-privileged internal network user.
+2. requirements.txt
+
+Περιέχει τις εξαρτήσεις του project.
+
+Στην αρχή μπορούμε να το κρατήσουμε απλό:
+
+pyyaml
+jinja2
+rich
+pytest
+
+Τι κάνει το καθένα:
+
+Package	Χρήση
+pyyaml	Διαβάζει YAML configuration files
+jinja2	Δημιουργία HTML reports
+rich	Όμορφο terminal output
+pytest	Unit tests
+3. pyproject.toml
+
+Περιέχει metadata και ρυθμίσεις για το Python project.
+
+Χρήσιμο για:
+
+- project name
+- version
+- Python version
+- build configuration
+- formatting/linting αργότερα
+
+Στην αρχή δεν είναι απολύτως απαραίτητο, αλλά είναι καλό για επαγγελματική δομή.
+
+4. .gitignore
+
+Για να μη μπαίνουν στο Git άχρηστα ή ευαίσθητα αρχεία.
+
+Παράδειγμα:
+
+__pycache__/
+*.pyc
+.env
+reports/*.json
+reports/*.html
+.venv/
+Κύριο entry point
+5. irmapper.py
+
+Αυτό είναι το αρχείο που θα τρέχει ο χρήστης.
+
+Παράδειγμα:
+
+python irmapper.py --target 192.168.1.0/24
+
+Δεν θα περιέχει όλη τη λογική.
+
+Θα κάνει μόνο αυτό:
+
+from irmapper_core.cli import main
+
+if __name__ == "__main__":
+    main()
+
+Δηλαδή θα καλεί το main() από το module cli.py.
+
+Φάκελος config/
+
+Εδώ θα βάλουμε τις ρυθμίσεις του εργαλείου ώστε να μη γράφουμε όλα τα ports και risk scores μέσα στον κώδικα.
+
+6. config/default_ports.yml
+
+Περιέχει τα ports που θα ελέγχει το εργαλείο.
+
+Παράδειγμα:
+
+ports:
+  - port: 22
+    service: SSH
+    category: remote_access
+
+  - port: 80
+    service: HTTP
+    category: web
+
+  - port: 443
+    service: HTTPS
+    category: web
+
+  - port: 445
+    service: SMB
+    category: file_sharing
+
+  - port: 2049
+    service: NFS
+    category: file_sharing
+
+  - port: 3306
+    service: MySQL
+    category: database
+
+  - port: 3389
+    service: RDP
+    category: remote_access
+
+  - port: 5432
+    service: PostgreSQL
+    category: database
+
+  - port: 8080
+    service: HTTP-Alt
+    category: web_admin
+
+  - port: 8443
+    service: HTTPS-Alt
+    category: web_admin
+
+Γιατί το θέλουμε;
+
+Επειδή αργότερα μπορούμε να αλλάζουμε τα ports χωρίς να πειράζουμε τον κώδικα.
+
+7. config/risk_rules.yml
+
+Περιέχει τους κανόνες κινδύνου.
+
+Παράδειγμα:
+
+risk_rules:
+  SMB:
+    severity: High
+    score: 25
+    finding: SMB exposure
+    recommendation: Restrict SMB access and audit shared folders.
+
+  NFS:
+    severity: High
+    score: 25
+    finding: NFS exposure
+    recommendation: Restrict NFS exports to trusted hosts.
+
+  RDP:
+    severity: Medium
+    score: 20
+    finding: RDP exposure
+    recommendation: Restrict RDP access and monitor login events.
+
+  MySQL:
+    severity: Medium
+    score: 15
+    finding: Database exposure
+    recommendation: Restrict database access to application servers only.
+
+  PostgreSQL:
+    severity: Medium
+    score: 15
+    finding: Database exposure
+    recommendation: Restrict database access to application servers only.
+
+  HTTP-Alt:
+    severity: Medium
+    score: 15
+    finding: Possible admin interface
+    recommendation: Place admin panels behind VPN, SSO, or IP allowlisting.
+Φάκελος irmapper_core/
+
+Αυτός είναι ο βασικός φάκελος του εργαλείου.
+
+8. irmapper_core/__init__.py
+
+Δηλώνει ότι ο φάκελος είναι Python package.
+
+Μπορεί να είναι κενό στην αρχή.
+
+9. irmapper_core/cli.py
+
+Αυτό είναι το command-line interface.
+
+Είναι υπεύθυνο για:
+
+- Να διαβάζει arguments από τον χρήστη
+- Να καλεί τον target parser
+- Να φορτώνει config files
+- Να ξεκινά το scanning
+- Να καλεί το risk engine
+- Να καλεί τον reporter
+
+Παράδειγμα arguments:
+
+python irmapper.py --target 192.168.1.0/24 --output reports/report.json
+
+Μελλοντικά:
+
+python irmapper.py \
+  --target 192.168.1.0/24 \
+  --ports config/default_ports.yml \
+  --format html \
+  --threads 50
+
+Το cli.py δεν θα κάνει scanning μόνο του. Θα συντονίζει τα υπόλοιπα modules.
+
+10. irmapper_core/target_parser.py
+
+Αυτό αναλαμβάνει να μετατρέπει το target σε λίστα από IPs.
+
+Θα δέχεται:
+
+192.168.1.10
+192.168.1.0/24
+
+και θα επιστρέφει:
+
+["192.168.1.1", "192.168.1.2", "192.168.1.3", ...]
+
+Ευθύνη του:
+
+- Έλεγχος αν το target είναι σωστό
+- Υποστήριξη single IP
+- Υποστήριξη CIDR
+- Απόρριψη invalid input
+11. irmapper_core/scanner.py
+
+Αυτό είναι το module που κάνει το port scanning.
+
+Ευθύνη του:
+
+- Να παίρνει λίστα από hosts
+- Να παίρνει λίστα από ports
+- Να ελέγχει ποια ports είναι ανοιχτά
+- Να επιστρέφει raw scan results
+
+Παράδειγμα output:
+
+{
+    "host": "192.168.1.10",
+    "open_ports": [
+        {
+            "port": 22,
+            "service": "SSH"
+        },
+        {
+            "port": 445,
+            "service": "SMB"
+        }
+    ]
+}
+
+Σημαντικό:
+Το scanner.py δεν πρέπει να αποφασίζει αν κάτι είναι High ή Medium risk. Αυτό θα το κάνει το risk_engine.py.
+
+12. irmapper_core/banner_grabber.py
+
+Αυτό προσπαθεί να πάρει βασικές πληροφορίες από κάποιες υπηρεσίες.
+
+Για παράδειγμα:
+
+SSH banner
+HTTP headers
+HTTPS headers
+
+Παράδειγμα:
+
+OpenSSH_8.9
+Apache/2.4.58
+nginx/1.24
+
+Ευθύνη του:
+
+- Να κάνει ασφαλές, ελάχιστο banner grabbing
+- Να μην κάνει authentication
+- Να μην κάνει brute force
+- Να μην εκτελεί exploits
+
+Θα χρησιμοποιείται κυρίως για:
+
+- SSH
+- HTTP
+- HTTPS
+- HTTP-Alt
+- HTTPS-Alt
+13. irmapper_core/service_classifier.py
+
+Αυτό παίρνει τα open ports και τα μετατρέπει σε πιο κατανοητές κατηγορίες.
+
+Παράδειγμα:
+
+port 445 -> file_sharing
+port 3389 -> remote_access
+port 3306 -> database
+port 8080 -> possible_admin_interface
+
+Ευθύνη του:
+
+- Κατηγοριοποίηση υπηρεσιών
+- Εντοπισμός πιθανών admin interfaces
+- Εντοπισμός sensitive services
+
+Παράδειγμα output:
+
+{
+    "service": "SMB",
+    "category": "file_sharing",
+    "exposure_type": "internal_lateral_movement_risk"
+}
+14. irmapper_core/risk_engine.py
+
+Αυτό είναι από τα πιο σημαντικά modules.
+
+Παίρνει τα αποτελέσματα από το scanner και υπολογίζει:
+
+- risk score
+- severity
+- findings
+- recommendations
+
+Παράδειγμα:
+
+{
+    "score": 75,
+    "level": "High",
+    "findings": [
+        {
+            "title": "SMB exposure",
+            "severity": "High",
+            "description": "SMB is reachable from the internal network.",
+            "recommendation": "Restrict SMB access and audit shared folders."
+        }
+    ]
+}
+
+Λογική:
+
+SMB open         +25
+NFS open         +25
+RDP open         +20
+Database open    +15
+Admin panel      +15
+SSH open         +10
+HTTP open        +5
+
+Μετά:
+
+0–30    Low
+31–69   Medium
+70–100  High
+15. irmapper_core/reporter.py
+
+Αυτό δημιουργεί τα reports.
+
+Στην αρχή:
+
+- JSON report
+- terminal summary
+
+Μετά:
+
+- HTML report
+- Markdown report
+- CSV export
+
+Ευθύνη του:
+
+- Να παίρνει structured results
+- Να φτιάχνει αναφορά
+- Να αποθηκεύει αρχείο
+- Να εμφανίζει σύνοψη στο terminal
+
+Παράδειγμα αρχείων:
+
+reports/report.json
+reports/report.html
+16. irmapper_core/models.py
+
+Εδώ θα ορίσουμε τα βασικά data models.
+
+Για αρχή μπορούμε να χρησιμοποιήσουμε Python dataclasses.
+
+Παράδειγμα:
+
+from dataclasses import dataclass
+from typing import Optional
+
+
+@dataclass
+class ServiceResult:
+    port: int
+    service: str
+    category: str
+    banner: Optional[str] = None
+
+
+@dataclass
+class Finding:
+    title: str
+    severity: str
+    description: str
+    recommendation: str
+
+
+@dataclass
+class HostResult:
+    host: str
+    services: list[ServiceResult]
+    findings: list[Finding]
+    risk_score: int
+    risk_level: str
+
+Γιατί το θέλουμε;
+
+Για να μη μεταφέρουμε απλά dictionaries παντού χωρίς δομή.
+
+17. irmapper_core/utils.py
+
+Βοηθητικές συναρτήσεις.
+
+Παραδείγματα:
+
+- load_yaml()
+- ensure_directory_exists()
+- timestamp generation
+- safe string cleanup
+- IP sorting
+
+Δεν βάζουμε business logic εδώ. Μόνο μικρά βοηθητικά εργαλεία.
+
+Φάκελος reports/
+
+Εδώ θα αποθηκεύονται τα reports που δημιουργεί το εργαλείο.
+
+reports/report.json
+reports/report.html
+
+Βάζουμε .gitkeep για να υπάρχει ο φάκελος στο Git χωρίς να ανεβάζουμε τα ίδια τα reports.
+
+Φάκελος tests/
+
+Εδώ θα γράψουμε unit tests.
+
+18. tests/test_target_parser.py
+
+Θα ελέγχει:
+
+- Αν ένα single IP γίνεται σωστή λίστα
+- Αν ένα CIDR γίνεται λίστα hosts
+- Αν invalid input απορρίπτεται
+19. tests/test_risk_engine.py
+
+Θα ελέγχει:
+
+- Αν SMB δίνει High risk
+- Αν μόνο HTTP δίνει Low risk
+- Αν SMB + RDP + DB ανεβάζει score
+20. tests/test_service_classifier.py
+
+Θα ελέγχει:
+
+- 445 -> SMB/file_sharing
+- 3389 -> RDP/remote_access
+- 8080 -> possible admin interface
+Φάκελος docs/
+
+Για portfolio είναι πολύ καλό να έχεις documentation.
+
+21. docs/architecture.md
+
+Περιγράφει την αρχιτεκτονική:
+
+CLI -> Target Parser -> Scanner -> Banner Grabber -> Service Classifier -> Risk Engine -> Reporter
+22. docs/usage.md
+
+Περιγράφει πώς τρέχει το εργαλείο.
+
+Παράδειγμα:
+
+python irmapper.py --target 192.168.1.0/24 --format json
+23. docs/sample_report.md
+
+Περιέχει παράδειγμα αναφοράς για portfolio.
+
+Ροή λειτουργίας του εργαλείου
+
+Η λογική ροή είναι αυτή:
+
+1. Ο χρήστης δίνει target
+        │
+        ▼
+2. cli.py διαβάζει τα arguments
+        │
+        ▼
+3. target_parser.py μετατρέπει target σε λίστα IPs
+        │
+        ▼
+4. cli.py φορτώνει ports και risk rules από config/
+        │
+        ▼
+5. scanner.py ελέγχει hosts και ports
+        │
+        ▼
+6. banner_grabber.py παίρνει banners όπου γίνεται με ασφάλεια
+        │
+        ▼
+7. service_classifier.py κατηγοριοποιεί τις υπηρεσίες
+        │
+        ▼
+8. risk_engine.py υπολογίζει findings και risk score
+        │
+        ▼
+9. reporter.py δημιουργεί terminal / JSON / HTML report

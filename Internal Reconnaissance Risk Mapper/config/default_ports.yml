@@ -1,0 +1,40 @@
+ports:
+  - port: 22
+    service: SSH
+    category: remote_access
+
+  - port: 80
+    service: HTTP
+    category: web
+
+  - port: 443
+    service: HTTPS
+    category: web
+
+  - port: 445
+    service: SMB
+    category: file_sharing
+
+  - port: 2049
+    service: NFS
+    category: file_sharing
+
+  - port: 3306
+    service: MySQL
+    category: database
+
+  - port: 3389
+    service: RDP
+    category: remote_access
+
+  - port: 5432
+    service: PostgreSQL
+    category: database
+
+  - port: 8080
+    service: HTTP-Alt
+    category: web_admin
+
+  - port: 8443
+    service: HTTPS-Alt
+    category: web_admin

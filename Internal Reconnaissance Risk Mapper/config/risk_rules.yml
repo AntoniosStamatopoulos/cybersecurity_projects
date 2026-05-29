@@ -1,0 +1,228 @@
+risk_rules:
+  SSH:
+    severity: Low
+    score: 10
+    finding: SSH remote access exposure
+    recommendation: Restrict SSH access to trusted admin subnets, disable password login where possible, and monitor authentication attempts.
+
+  RDP:
+    severity: Medium
+    score: 20
+    finding: RDP remote access exposure
+    recommendation: Restrict RDP access, require MFA where possible, and monitor Windows logon events.
+
+  VNC:
+    severity: Medium
+    score: 20
+    finding: VNC remote access exposure
+    recommendation: Restrict VNC access to trusted hosts or VPN users and enforce strong authentication.
+
+  HTTP:
+    severity: Low
+    score: 5
+    finding: Web service exposure
+    recommendation: Verify that the web service is expected, patched, and does not expose sensitive internal information.
+
+  HTTPS:
+    severity: Low
+    score: 5
+    finding: HTTPS web service exposure
+    recommendation: Verify TLS configuration, authentication, and whether the service should be reachable from the scanned network.
+
+  HTTP-Alt:
+    severity: Medium
+    score: 15
+    finding: Possible web admin interface
+    recommendation: Place admin panels behind VPN, SSO, or IP allowlisting and enforce strong authentication.
+
+  HTTPS-Alt:
+    severity: Medium
+    score: 15
+    finding: Possible secure web admin interface
+    recommendation: Place admin panels behind VPN, SSO, or IP allowlisting and enforce strong authentication.
+
+  SMB:
+    severity: High
+    score: 25
+    finding: SMB file sharing exposure
+    recommendation: Restrict SMB access by subnet, disable SMBv1, enforce least privilege, and audit shared folders.
+
+  NetBIOS-SSN:
+    severity: Medium
+    score: 15
+    finding: Legacy Windows file sharing exposure
+    recommendation: Review whether NetBIOS is required, restrict access, and prefer modern hardened SMB configurations.
+
+  NFS:
+    severity: High
+    score: 25
+    finding: NFS file sharing exposure
+    recommendation: Restrict NFS exports to trusted hosts, review /etc/exports, and enforce least-privilege permissions.
+
+  MySQL:
+    severity: Medium
+    score: 15
+    finding: MySQL database exposure
+    recommendation: Restrict MySQL access to application servers only and enforce strong authentication.
+
+  PostgreSQL:
+    severity: Medium
+    score: 15
+    finding: PostgreSQL database exposure
+    recommendation: Restrict PostgreSQL access to application servers only and enforce strong authentication.
+
+  MSSQL:
+    severity: Medium
+    score: 15
+    finding: MSSQL database exposure
+    recommendation: Restrict MSSQL access to authorized application servers and monitor database authentication events.
+
+  Oracle DB:
+    severity: Medium
+    score: 15
+    finding: Oracle database exposure
+    recommendation: Restrict Oracle database access, review listener configuration, and enforce strong authentication.
+
+  MongoDB:
+    severity: High
+    score: 25
+    finding: MongoDB database exposure
+    recommendation: Restrict MongoDB access, require authentication, and ensure it is not reachable from untrusted internal segments.
+
+  Redis:
+    severity: High
+    score: 25
+    finding: Redis exposure
+    recommendation: Restrict Redis to localhost or trusted application hosts only and require authentication where supported.
+
+  Elasticsearch:
+    severity: High
+    score: 25
+    finding: Elasticsearch exposure
+    recommendation: Restrict Elasticsearch access, enable authentication, and ensure indexes do not expose sensitive data.
+
+  LDAP:
+    severity: Medium
+    score: 15
+    finding: LDAP directory service exposure
+    recommendation: Restrict LDAP access where possible and monitor directory enumeration activity.
+
+  LDAPS:
+    severity: Medium
+    score: 15
+    finding: LDAPS directory service exposure
+    recommendation: Restrict LDAPS access where possible and validate certificate and authentication settings.
+
+  Kerberos:
+    severity: Medium
+    score: 15
+    finding: Kerberos authentication service exposure
+    recommendation: Ensure Kerberos is only reachable where required and monitor authentication anomalies.
+
+  DNS:
+    severity: Low
+    score: 5
+    finding: DNS service exposure
+    recommendation: Restrict zone transfers, monitor unusual DNS queries, and ensure only authorized clients can query internal records.
+
+  NTP:
+    severity: Low
+    score: 5
+    finding: NTP service exposure
+    recommendation: Restrict NTP access to trusted clients and ensure the service is not usable for amplification or information disclosure.
+
+  SMTP:
+    severity: Medium
+    score: 10
+    finding: SMTP mail service exposure
+    recommendation: Verify relay restrictions, authentication requirements, and mail server hardening.
+
+  POP3:
+    severity: Medium
+    score: 10
+    finding: POP3 mail service exposure
+    recommendation: Prefer encrypted mail protocols and restrict access to trusted clients.
+
+  IMAP:
+    severity: Medium
+    score: 10
+    finding: IMAP mail service exposure
+    recommendation: Prefer encrypted mail protocols and restrict access to trusted clients.
+
+  SMTP-Submission:
+    severity: Medium
+    score: 10
+    finding: SMTP submission service exposure
+    recommendation: Require authentication and encryption for mail submission.
+
+  IMAPS:
+    severity: Low
+    score: 8
+    finding: IMAPS mail service exposure
+    recommendation: Verify TLS configuration and authentication requirements.
+
+  POP3S:
+    severity: Low
+    score: 8
+    finding: POP3S mail service exposure
+    recommendation: Verify TLS configuration and authentication requirements.
+
+  SNMP:
+    severity: High
+    score: 25
+    finding: SNMP management exposure
+    recommendation: Disable SNMP if not required, restrict access, avoid default community strings, and prefer SNMPv3.
+
+  SNMP-Trap:
+    severity: Medium
+    score: 10
+    finding: SNMP trap service exposure
+    recommendation: Verify that SNMP trap receivers are expected and restricted to trusted monitoring systems.
+
+  Prometheus:
+    severity: Medium
+    score: 15
+    finding: Prometheus monitoring exposure
+    recommendation: Restrict Prometheus access and ensure metrics do not expose sensitive service, host, or token information.
+
+  Grafana:
+    severity: Medium
+    score: 15
+    finding: Grafana dashboard exposure
+    recommendation: Require authentication, disable anonymous access unless explicitly needed, and restrict access to trusted users.
+
+  Kibana:
+    severity: Medium
+    score: 15
+    finding: Kibana dashboard exposure
+    recommendation: Require authentication and restrict access to trusted users or admin networks.
+
+  Docker Registry / Dev Service:
+    severity: Medium
+    score: 15
+    finding: Docker registry or development service exposure
+    recommendation: Require authentication and restrict access to trusted build or deployment systems.
+
+  Docker API:
+    severity: Critical
+    score: 35
+    finding: Docker API exposure
+    recommendation: Do not expose the Docker API without strong TLS authentication; restrict access to trusted administrative hosts only.
+
+  Docker API TLS:
+    severity: High
+    score: 25
+    finding: Docker API TLS exposure
+    recommendation: Verify mutual TLS authentication, restrict access to trusted admin hosts, and monitor Docker API activity.
+
+  Kubernetes API:
+    severity: Critical
+    score: 35
+    finding: Kubernetes API exposure
+    recommendation: Restrict Kubernetes API access, enforce strong authentication and RBAC, and monitor control plane activity.
+
+  Kubernetes Kubelet API:
+    severity: Critical
+    score: 35
+    finding: Kubernetes Kubelet API exposure
+    recommendation: Restrict Kubelet API access, require authentication, disable anonymous access, and monitor node-level API activity.

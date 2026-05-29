@@ -1,0 +1,48 @@
+{
+  "tool": "Internal Reconnaissance Risk Mapper",
+  "version": "0.1.0",
+  "generated_at": "2026-05-29T16:21:43.630878+00:00",
+  "target": "127.0.0.1",
+  "configuration": {
+    "ports_config": "config\\default_ports.yml",
+    "risk_rules": "config\\risk_rules.yml"
+  },
+  "summary": {
+    "hosts_scanned": 1,
+    "hosts_with_open_ports": 1,
+    "high_risk_hosts": 0,
+    "medium_risk_hosts": 0,
+    "low_risk_hosts": 1,
+    "total_findings": 1
+  },
+  "results": [
+    {
+      "host": "127.0.0.1",
+      "open_ports": [
+        {
+          "port": 445,
+          "service": "SMB",
+          "category": "file_sharing",
+          "banner": null,
+          "exposure_type": "internal_lateral_movement_risk",
+          "is_sensitive": true,
+          "is_admin_interface": false
+        }
+      ],
+      "risk_score": 25,
+      "risk_level": "Low",
+      "findings": [
+        {
+          "title": "SMB file sharing exposure",
+          "severity": "High",
+          "service": "SMB",
+          "port": 445,
+          "category": "file_sharing",
+          "exposure_type": "internal_lateral_movement_risk",
+          "description": "SMB is reachable on 445/tcp from the scanned network.",
+          "recommendation": "Restrict SMB access by subnet, disable SMBv1, enforce least privilege, and audit shared folders."
+        }
+      ]
+    }
+  ]
+}
